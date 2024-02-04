@@ -114,22 +114,27 @@ class TestFileStorage(unittest.TestCase):
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
 
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
-    def test_get_existing_object(self):
-            """Test get method with an existing object"""
-            storage = FileStorage()
-            o = BaseModel()
-            storage.new(o)
-            result = storage.get(BaseModel, o.id)
-            self.assertEqual(result, o)
-
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
-    def test_count(self):
-        """Test the count method"""
+    @unittest.skipIf(models.storage_t == 'db',
+                     "not testing file storage")
+    def test_get(self):
+        """Test get method"""
         storage = FileStorage()
-        c = storage.count()
-        self.assertEqual(c, len(storage.all()))
-        count_amenity = storage.count(Amenity)
-        self.assertEqual(count_amenity, len(storage.all(Amenity)))
-        count_user = storage.count(User)
-        self.assertEqual(count_user, len(storage.all(User)))
+        self.assertIs(storage.get("User", "test"), None)
+        self.assertIs(storage.get("test", "test"), None)
+        new_user = User()
+        new_user.save()
+        self.assertIs(storage.get("User", new_user.id), new_user)
+
+    @unittest.skipIf(models.storage_t == 'db',
+                     "not testing file storage")
+    def test_count(self):
+        """Test count method"""
+        storage = FileStorage()
+        new_length = len(storage.all())
+        self.assertEqual(storage.count(), new_length)
+        state_len = len(storage.all("State"))
+        self.assertEqual(storage.count("State"), state_len)
+        new_state = State()
+        new_state.save()
+        self.assertEqual(storage.count(), new_length + 1)
+        self.assertEqual(storage.count("State"), state_len + 1)

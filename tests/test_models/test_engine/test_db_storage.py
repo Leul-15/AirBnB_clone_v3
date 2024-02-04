@@ -90,24 +90,28 @@ class TestFileStorage(unittest.TestCase):
 
 class TestDBStorage(unittest.TestCase):
     """Tests for the DBStorage class"""
-    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-    def test_get_existing_object(self):
-        """Test an existing object"""
-        storage = DBStorage()
-        o = BaseModel()
-        storage.new(o)
-        storage.save()
-        new_obj = storage.get(BaseModel, o.id)
-        self.assertEqual(new_obj, o)
+    @unittest.skipIf(models.storage_t != 'db',
+                     "not testing db storage")
+    def test_get(self):
+        """Test get"""
+        new_state = State(name="Washington")
+        new_state.save()
+        new_user = User(email="user@gmail.com", password="12345")
+        new_user.save()
+        self.assertIs(new_state, models.storage.get("State", new_state.id))
+        self.assertIs(None, models.storage.get("State", "test"))
+        self.assertIs(None, models.storage.get("test", "test"))
+        self.assertIs(new_user, models.storage.get("User", new_user.id))
 
-    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
-    def test_count_objects_by_invalid_class(self):
-        """Test counting objects by invalid class in storage"""
-        storage = DBStorage()
-        obj1 = BaseModel()
-        obj2 = BaseModel()
-        storage.new(obj1)
-        storage.new(obj2)
-        storage.save()
-        count = storage.count(InvalidClass)
-        self.assertEqual(count, 0)
+    @unittest.skipIf(models.storage_t != 'db',
+                     "not testing db storage")
+    def test_count(self):
+        """test count"""
+        new_count = models.storage.count()
+        self.assertEqual(models.storage.count("test"), 0)
+        new_state = State(name="New York")
+        new_state.save()
+        new_user = User(email="user@gmail.com", password="12345")
+        new_user.save()
+        self.assertEqual(models.storage.count("State"), new_count + 1)
+        self.assertEqual(models.storage.count(), new_count + 2)
