@@ -11,13 +11,13 @@ from models.review import Review
 from models.user import User
 
 
-@app_views.route("/status", methods=["GET"])
+@app_views.route("/status", methods=['GET'], strict_slashes=False)
 def status():
     """return status"""
     return jsonify({"status": "OK"})
 
 
-@app_views.route("/stats", methods=["GET"])
+@app_views.route("/stats", methods=['GET'], strict_slashes=False)
 def stats():
     """Return count of each classes"""
     classes = {
