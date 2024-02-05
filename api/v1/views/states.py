@@ -2,7 +2,7 @@
 """"""
 from models import storage
 from models.state import State
-from flask import jsonify, abort, make_response, request
+from flask import jsonify, abort, request
 from api.v1.views import app_views
 
 
@@ -37,13 +37,13 @@ def delete_state(state_id):
 def post_state():
     """"""
     if not request.get_json():
-        return make_response(jsonify({'error': 'Not a JSON'}), 400)
+        return jsonify({'error': 'Not a JSON'}), 400
     if "name" not in request.get_json():
-        return make_response(jsonify({'error': 'Missing name'}), 400)
+        return jsonify({'error': 'Missing name'}), 400
     state = State(**request.get_json())
     storage.new(state)
     storage.save()
-    return make_response(jsonify(state.to_dict()), 201)
+    return jsonify(state.to_dict()), 201
 
 
 @app_views.route("/states/<state_id>", methods=["PUT"])
@@ -53,7 +53,7 @@ def put_state(state_id):
     if not state:
         abort(404)
     if not request.get_json():
-        return make_response(jsonify({'error': 'Not a JSON'}), 400)
+        return jsonify({'error': 'Not a JSON'}), 400
     for key, value in request.json().items():
         if key not in ["id", "created_at", "updated_at"]:
             setattr(state, key, value)
